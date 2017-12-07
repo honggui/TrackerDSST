@@ -97,6 +97,8 @@ public:
     // Initialize tracker
     virtual void init(const cv::Rect &roi, cv::Mat image);
 
+    virtual void init(const cv::Point pt1, const cv:: Point pt2, cv::Mat image);
+
     // Update position based on the new frame
     virtual cv::Rect update(cv::Mat image);
 

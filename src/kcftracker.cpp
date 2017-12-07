@@ -178,6 +178,20 @@ void KCFTracker::init(const cv::Rect &roi, cv::Mat image)
     train(_tmpl, 1.0); // train with initial frame
  }
 
+// Initialize tracker
+void KCFTracker::init(const cv::Point pt1, const cv:: Point pt2, cv::Mat image)
+{
+
+    cv::Rect targetRect; 
+    targetRect.x = MIN(pt1.x, pt2.x);
+    targetRect.y = MIN(pt1.y, pt2.y);
+    targetRect.width = abs(pt2.x - pt1.x);
+    targetRect.height = abs(pt2.y - pt1.y);
+    targetRect&=cv::Rect(0, 0, image.cols, image.rows);
+
+    init(targetRect, image);
+}
+
 // Update position based on the new frame
 cv::Rect KCFTracker::update(cv::Mat image)
 {

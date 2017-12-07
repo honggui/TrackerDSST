@@ -116,7 +116,8 @@ int main(int argc, char* argv[]){
     if (selected){
       // First frame, give the groundtruth to the tracker
       if (nFrames == 0) {
-        tracker.init( Rect(xMin, yMin, width, height), frame );
+        //tracker.init( Rect(xMin, yMin, width, height), frame );
+        tracker.init(Point(xMin, yMin), Point( xMin+width, yMin+height), frame);
         // rectangle( frame, Point( xMin, yMin ), Point( xMin+width, yMin+height), Scalar( 0, 255, 255 ), 1, 8 );
         // resultsFile << xMin << "," << yMin << "," << width << "," << height << endl;
       }
