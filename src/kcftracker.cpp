@@ -163,6 +163,27 @@ KCFTracker::KCFTracker(bool hog, bool fixed_window, bool multiscale, bool lab)
     }
 }
 
+
+// Destructor
+KCFTracker::~KCFTracker()
+{
+   printf("KCFTracker Destructor.\n");
+
+   _alphaf.release();
+   _prob.release();
+   _tmpl.release();
+   _num.release();
+   _den.release();
+   _labCentroids.release();
+   sf_den.release();
+   sf_num.release();
+   
+   hann.release();
+   s_hann.release();
+   ysf.release();
+}
+
+
 // Initialize tracker
 void KCFTracker::init(const cv::Rect &roi, cv::Mat image)
 {
@@ -205,6 +226,8 @@ cv::Rect KCFTracker::update(cv::Mat image)
 
     float peak_value;
     cv::Point2f res = detect(_tmpl, getFeatures(image, 0, 1.0f), peak_value);
+
+    //printf("Peak value: %f\n", peak_value);
 
     // Adjust by cell size and _scale
     _roi.x = cx - _roi.width / 2.0f + ((float) res.x * cell_size * _scale * currentScaleFactor);
