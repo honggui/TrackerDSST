@@ -11,6 +11,10 @@
 
 #include <dirent.h>
 #include <sys/time.h>
+#include "json/json.h"
+
+#define CONFIG_FILENAME "./src/config.json"
+
 
 using namespace std;
 using namespace cv;
@@ -22,6 +26,18 @@ Rect result;
 bool select_flag=false;
 bool selected = false;
 Point origin;
+
+struct sys_config
+{
+    bool hog;
+    bool fixed_window;
+    bool multi_scale;
+    bool silent;
+    bool lab;
+    float  scale_step; 
+    int  num_scales;
+};
+
 
 void onMouse(int event,int x,int y,int flags, void* userdata)
 {
@@ -47,15 +63,76 @@ void onMouse(int event,int x,int y,int flags, void* userdata)
     }
 }
 
+bool parse_config(char * path, sys_config & config)
+{
+    std::ifstream ifs;
+    Json::Reader reader;
+    Json::Value root;
+
+    ifs.open(path, std::ios::in | std::ios::binary);
+    if (ifs.is_open() == false) {
+                std::cout << "Open file failed!\n";
+        return false;
+    }
+
+    if (!reader.parse(ifs, root, false)) {
+                std::cout << "Read file failed!\n";
+        ifs.close();
+        return false;
+    }
+
+    memset(&config, 0, sizeof(sys_config));
+
+    config.hog = root["hog"].asInt();
+    config.lab = root["lab"].asInt();
+
+    config.fixed_window = root["fixed window"].asInt();
+    config.multi_scale = root["multi scale"].asInt();
+
+    config.silent = root["silent"].asInt();
+
+    config.scale_step = root["scale step"].asFloat();
+    config.num_scales = root["num scales"].asInt();
+
+    ifs.close();
+        return true;
+}
+
+
 int main(int argc, char* argv[]){
+
+    bool HOG = true;
+    bool FIXEDWINDOW = false;
+    bool MULTISCALE = true;
+    bool SILENT = false;
+    bool LAB = false;
+
+    sys_config config;
+
+    if(parse_config((char *)CONFIG_FILENAME, config))
+    {
+        HOG = config.hog;
+        LAB = config.lab;
+        FIXEDWINDOW = config.fixed_window;
+        SILENT = config.silent;
+        MULTISCALE = config.multi_scale;
+      
+        std::cout <<"HOG = " <<HOG<<std::endl;
+        std::cout <<"LAB = " <<LAB<<std::endl;
+        std::cout <<"FIXEDWINDOW = " <<FIXEDWINDOW<<std::endl;
+        std::cout <<"SILENT = " <<SILENT<<std::endl;
+        std::cout <<"MULTISCALE = " <<MULTISCALE<<std::endl;
+
+        std::cout <<"scale step = "<<config.scale_step<<std::endl;
+        std::cout <<"num scales = "<<config.num_scales<<std::endl;
+    }
+    else
+    {
+        std::cout << "config error!" << std::endl;
+    }
 
 	if (argc > 5) return -1;
 
-	bool HOG = true;
-	bool FIXEDWINDOW = false;
-	bool MULTISCALE = true;
-	bool SILENT = false;
-	bool LAB = false;
 	VideoCapture cam(0); //webcam
 
 	for(int i = 0; i < argc; i++){
@@ -78,7 +155,8 @@ int main(int argc, char* argv[]){
 	// Create KCFTracker object
 	KCFTracker tracker(HOG, FIXEDWINDOW, MULTISCALE, LAB);
 
-
+        tracker.scale_step = config.scale_step;
+        tracker.n_scales   = config.num_scales;
 
 	//New window
 	string window_name = "video | q or esc to quit";

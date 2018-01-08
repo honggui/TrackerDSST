@@ -1,0 +1,9 @@
+{
+	"hog": 1,
+	"lab": 0,
+	"fixed window": 0,
+	"multi scale": 1,
+	"silent": 0,
+        "scale step": 1.05,
+        "num scales": 33
+}
